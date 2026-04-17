@@ -134,6 +134,7 @@ elif modulo == "Visualización":
             st.info(f"Sesgo negativo (cola izquierda): {skewness:.2f}")
         else:
             st.info(f"Sin sesgo significativo: {skewness:.2f}")
+            st.write(f"Curtosis: {kurtosis:.2f}")
 
         # Outliers
         if len(outliers) > 0:
