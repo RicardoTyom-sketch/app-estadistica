@@ -104,5 +104,40 @@ elif modulo == "Visualización":
 
         st.pyplot(fig)
 
-        
+        # ── ANÁLISIS AUTOMÁTICO ──
+        st.markdown("---")
+        st.subheader("Análisis de la distribución")
+
+        datos_limpios = datos.dropna()
+        skewness = datos_limpios.skew()
+        kurtosis = datos_limpios.kurtosis()
+
+        Q1 = datos_limpios.quantile(0.25)
+        Q3 = datos_limpios.quantile(0.75)
+        IQR = Q3 - Q1
+
+        outliers = datos_limpios[
+            (datos_limpios < Q1 - 1.5 * IQR) |
+            (datos_limpios > Q3 + 1.5 * IQR)
+        ]
+
+        # Normalidad
+        if abs(skewness) < 0.5:
+            st.success("La distribución parece aproximadamente normal")
+        else:
+            st.warning("La distribución no parece normal")
+
+        # Sesgo
+        if skewness > 0.5:
+            st.info(f"Sesgo positivo (cola derecha): {skewness:.2f}")
+        elif skewness < -0.5:
+            st.info(f"Sesgo negativo (cola izquierda): {skewness:.2f}")
+        else:
+            st.info(f"Sin sesgo significativo: {skewness:.2f}")
+
+        # Outliers
+        if len(outliers) > 0:
+            st.warning(f"Se detectaron {len(outliers)} outliers")
+        else:
+            st.success("No se detectaron outliers")
 
