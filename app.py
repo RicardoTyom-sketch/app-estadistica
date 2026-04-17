@@ -63,3 +63,46 @@ elif modulo == "Carga de Datos":
         variable = st.selectbox("Selecciona la variable a analizar", columnas)
         st.session_state.variable = variable
         st.info(f"Variable seleccionada: **{variable}**")
+
+        # ── MÓDULO VISUALIZACIÓN ──
+elif modulo == "Visualización":
+    st.header("Visualización de Distribuciones")
+
+    if st.session_state.datos is None:
+        st.warning("Primero carga datos en el módulo **Carga de Datos**")
+    else:
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        from scipy import stats
+
+        df = st.session_state.datos
+        variable = st.session_state.variable
+        datos = df[variable].dropna()
+
+        st.subheader(f"Variable: {variable}")
+
+        # Estadísticos básicos
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Media", f"{datos.mean():.2f}")
+        col2.metric("Mediana", f"{datos.median():.2f}")
+        col3.metric("Desv. Estándar", f"{datos.std():.2f}")
+        col4.metric("N", len(datos))
+
+        st.markdown("---")
+
+        # Gráficas
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+        # Histograma + KDE
+        sns.histplot(datos, kde=True, ax=axes[0], color="steelblue")
+        axes[0].set_title("Histograma + KDE")
+        axes[0].set_xlabel(variable)
+
+        # Boxplot
+        sns.boxplot(y=datos, ax=axes[1], color="lightcoral")
+        axes[1].set_title("Boxplot")
+
+        st.pyplot(fig)
+
+        
+
