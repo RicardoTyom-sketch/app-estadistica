@@ -241,4 +241,64 @@ elif modulo == "Prueba Z":
             ax.legend()
             st.pyplot(fig)
 
+               # ── ASISTENTE IA ──
+elif modulo == "Asistente IA":
+    st.header(" Asistente IA - Gemini")
+
+    if st.session_state.datos is None:
+        st.warning("Primero carga datos y ejecuta la prueba Z")
+    elif "z" not in st.session_state:
+        st.warning("Primero ejecuta la prueba Z")
+    else:
+        import google.generativeai as genai
+        import os
+        from dotenv import load_dotenv
+
+        load_dotenv()
+        api_key = os.getenv("GEMINI_API_KEY")
+        genai.configure(api_key=api_key)
+
+        st.subheader("Resumen estadístico")
+        st.write(f"**Media muestral:** {st.session_state.media_muestral:.2f}")
+        st.write(f"**Media hipotética (H0):** {st.session_state.mu0}")
+        st.write(f"**n:** {st.session_state.n}")
+        st.write(f"**σ:** {st.session_state.sigma}")
+        st.write(f"**α:** {st.session_state.alpha}")
+        st.write(f"**Tipo de prueba:** {st.session_state.tipo}")
+        st.write(f"**Z calculado:** {st.session_state.z:.4f}")
+        st.write(f"**p-value:** {st.session_state.p_value:.4f}")
+        st.write(f"**Decisión:** {'Se rechaza H0' if st.session_state.rechazar else 'No se rechaza H0'}")
+
+        st.markdown("---")
+
+        if st.button("Consultar a Gemini"):
+            prompt = f"""Se realizó una prueba Z con los siguientes parámetros:
+media muestral = {st.session_state.media_muestral:.2f}
+media hipotética = {st.session_state.mu0}
+n = {st.session_state.n}
+sigma = {st.session_state.sigma}
+alpha = {st.session_state.alpha}
+tipo de prueba = {st.session_state.tipo}
+El estadístico Z fue = {st.session_state.z:.4f}
+p-value = {st.session_state.p_value:.4f}
+¿Se rechaza H0? Explica la decisión y si los supuestos de la prueba son razonables."""
+
+            with st.spinner("Consultando a Gemini..."):
+                try:
+                    model = genai.GenerativeModel("gemini-2.5-flash")
+                    response = model.generate_content(prompt)
+                    st.subheader("Respuesta de Gemini")
+                    st.write(response.text)
+
+                    st.markdown("---")
+                    st.subheader("¿Coincide con tu decisión?")
+                    decision_app = "Se rechaza H0" if st.session_state.rechazar else "No se rechaza H0"
+                    st.info(f"Tu app decidió: **{decision_app}**")
+                    st.write("Compara con la respuesta de Gemini arriba.")
+
+                except Exception as e:
+                    st.error(f"Error al conectar con Gemini: {e}")
+
+            
+
      
