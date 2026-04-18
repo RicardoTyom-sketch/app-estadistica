@@ -143,14 +143,16 @@ elif modulo == "Visualización":
         else:
             st.success("No se detectaron outliers")
 
-            # ── MÓDULO PRUEBA Z ──
+          # ── MÓDULO PRUEBA Z ──
 elif modulo == "Prueba Z":
-    st.header("🧪 Prueba de Hipótesis Z")
+    st.header("Prueba de Hipótesis Z")
 
     if st.session_state.datos is None:
         st.warning("Primero carga datos en el módulo **Carga de Datos**")
     else:
         from scipy import stats
+        import matplotlib.pyplot as plt
+        import numpy as np
         import numpy as np
 
         df = st.session_state.datos
@@ -193,7 +195,7 @@ elif modulo == "Prueba Z":
             rechazar = p_value < alpha
 
             st.markdown("---")
-            st.subheader("📊 Resultados")
+            st.subheader("Resultados")
 
             col1, col2, col3 = st.columns(3)
             col1.metric("Estadístico Z", f"{z:.4f}")
@@ -201,9 +203,9 @@ elif modulo == "Prueba Z":
             col3.metric("n", n)
 
             if rechazar:
-                st.error(f"❌ Se rechaza H0 con α={alpha}")
+                st.error(f"Se rechaza H0 con α={alpha}")
             else:
-                st.success(f"✅ No se rechaza H0 con α={alpha}")
+                st.success(f"No se rechaza H0 con α={alpha}")
 
             st.session_state.z = z
             st.session_state.p_value = p_value
@@ -213,6 +215,30 @@ elif modulo == "Prueba Z":
             st.session_state.tipo = tipo
             st.session_state.media_muestral = media_muestral
             st.session_state.n = n
-            st.session_state.rechazar = rechazar
+            st.session_state.rechazar = rechazar  
+
+               # ── CURVA CON REGIÓN CRÍTICA ──
+            fig, ax = plt.subplots(figsize=(10, 4))
+            x = np.linspace(-4, 4, 1000)
+            y = stats.norm.pdf(x)
+            ax.plot(x, y, 'b-', linewidth=2)
+            ax.fill_between(x, y, alpha=0.1, color='blue')
+
+            if tipo == "Bilateral (≠)":
+                z_crit = stats.norm.ppf(1 - alpha/2)
+                ax.fill_between(x, y, where=(x <= -z_crit), color='red', alpha=0.5, label='Región de rechazo')
+                ax.fill_between(x, y, where=(x >= z_crit), color='red', alpha=0.5)
+            elif tipo == "Cola izquierda (<)":
+                z_crit = stats.norm.ppf(alpha)
+                ax.fill_between(x, y, where=(x <= z_crit), color='red', alpha=0.5, label='Región de rechazo')
+            else:
+                z_crit = stats.norm.ppf(1 - alpha)
+                ax.fill_between(x, y, where=(x >= z_crit), color='red', alpha=0.5, label='Región de rechazo')
+
+            ax.axvline(x=z, color='green', linestyle='--', linewidth=2, label=f'Z calculado = {z:.4f}')
+            ax.set_title("Distribución Normal con Región Crítica")
+            ax.set_xlabel("Z")
+            ax.legend()
+            st.pyplot(fig)
 
      
