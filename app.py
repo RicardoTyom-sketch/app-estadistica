@@ -53,6 +53,7 @@ elif modulo == "Carga de Datos":
             datos = np.random.normal(loc=media, scale=desv, size=n)
             df = pd.DataFrame({"variable": datos})
             st.session_state.datos = df
+            st.session_state.variable = "variable"
             st.success(f"Se generaron {n} datos con media={media} y σ={desv}")
             st.dataframe(df.head())
 
@@ -142,3 +143,76 @@ elif modulo == "Visualización":
         else:
             st.success("No se detectaron outliers")
 
+            # ── MÓDULO PRUEBA Z ──
+elif modulo == "Prueba Z":
+    st.header("🧪 Prueba de Hipótesis Z")
+
+    if st.session_state.datos is None:
+        st.warning("Primero carga datos en el módulo **Carga de Datos**")
+    else:
+        from scipy import stats
+        import numpy as np
+
+        df = st.session_state.datos
+        variable = st.session_state.variable
+        datos = df[variable].dropna()
+
+        st.subheader("Definir hipótesis")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            mu0 = st.number_input("Media hipotética (H0: μ =)", value=50.0)
+            sigma = st.number_input("Desviación estándar poblacional (σ)", value=10.0)
+            alpha = st.selectbox("Nivel de significancia (α)", [0.01, 0.05, 0.10])
+        with col2:
+            tipo = st.radio("Tipo de prueba", [
+                "Bilateral (≠)",
+                "Cola izquierda (<)",
+                "Cola derecha (>)"
+            ])
+            st.markdown(f"**H0:** μ = {mu0}")
+            if tipo == "Bilateral (≠)":
+                st.markdown(f"**H1:** μ ≠ {mu0}")
+            elif tipo == "Cola izquierda (<)":
+                st.markdown(f"**H1:** μ < {mu0}")
+            else:
+                st.markdown(f"**H1:** μ > {mu0}")
+
+        if st.button("Calcular prueba Z"):
+            n = len(datos)
+            media_muestral = datos.mean()
+            z = (media_muestral - mu0) / (sigma / np.sqrt(n))
+
+            if tipo == "Bilateral (≠)":
+                p_value = 2 * (1 - stats.norm.cdf(abs(z)))
+            elif tipo == "Cola izquierda (<)":
+                p_value = stats.norm.cdf(z)
+            else:
+                p_value = 1 - stats.norm.cdf(z)
+
+            rechazar = p_value < alpha
+
+            st.markdown("---")
+            st.subheader("📊 Resultados")
+
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Estadístico Z", f"{z:.4f}")
+            col2.metric("p-value", f"{p_value:.4f}")
+            col3.metric("n", n)
+
+            if rechazar:
+                st.error(f"❌ Se rechaza H0 con α={alpha}")
+            else:
+                st.success(f"✅ No se rechaza H0 con α={alpha}")
+
+            st.session_state.z = z
+            st.session_state.p_value = p_value
+            st.session_state.mu0 = mu0
+            st.session_state.sigma = sigma
+            st.session_state.alpha = alpha
+            st.session_state.tipo = tipo
+            st.session_state.media_muestral = media_muestral
+            st.session_state.n = n
+            st.session_state.rechazar = rechazar
+
+     
