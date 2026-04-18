@@ -7,6 +7,54 @@ st.set_page_config(page_title="App Estadística", layout="wide")
 st.title("Análisis Estadístico con IA")
 st.markdown("---")
 
+st.markdown("""
+    <style>
+        .block-container {
+             padding-top: 4rem;
+            padding-bottom: 1rem;
+            max-width: 1100px;
+        }
+        h1 { 
+            font-size: 1.8rem !important; 
+            color: #FFFFFF !important;
+            text-shadow: 0 0 10px #0066FF, 0 0 20px #0066FF;
+        }
+        h2 { 
+            font-size: 1.4rem !important; 
+            color: #FFFFFF !important;
+            text-shadow: 0 0 8px #0066FF;
+        }
+        h3 { 
+            font-size: 1.2rem !important; 
+            color: #FFFFFF !important;
+            text-shadow: 0 0 6px #0066FF;
+        }
+        .stApp {
+            background-color: #0a0a0a;
+            color: white;
+        }
+        .stSidebar {
+            background-color: #111111;
+            border-right: 2px solid #0066FF;
+        }
+        div[data-testid="stMetricValue"] {
+            color: #FFFFFF !important;
+            text-shadow: 0 0 8px #0066FF;
+        }
+        .stButton > button {
+            background-color: #0a0a0a;
+            color: #FFFFFF;
+            border: 2px solid #0066FF;
+            border-radius: 8px;
+        }
+        .stButton > button:hover {
+            background-color: #0066FF;
+            color: white;
+            box-shadow: 0 0 10px #0066FF;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # Menú lateral
 modulo = st.sidebar.selectbox("Selecciona un módulo", [
     "Inicio",
